@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小四中文家用寫作工作紙：我最喜愛的動物</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tone.js for iPad Interactive Audio Feedback -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            background-color: #f1f5f9;
+        }
+        
+        .touch-btn {
+            transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .touch-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Custom scrollbar for smooth scrolling on iPad */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white;
+                color: black;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between selection:bg-indigo-100 selection:text-indigo-800">
+
+    <!-- Top Header Bar -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-30 no-print">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center space-x-3">
+                <span class="bg-amber-400 text-indigo-950 text-xs font-black px-2.5 py-1 rounded-full">iPad 家用工作紙</span>
+                <h1 class="text-lg md:text-xl font-bold tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-paw text-amber-300"></i> 我最喜愛的動物 <span class="text-xs font-normal text-indigo-200 hidden sm:inline">| P.4 中文寫作</span>
+                </h1>
+            </div>
+
+            <!-- Header Action Controls -->
+            <div class="flex items-center space-x-2">
+                <button onclick="saveStudentWork(true)" class="bg-indigo-500 hover:bg-indigo-400 text-white font-medium px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 border border-indigo-400 touch-btn">
+                    <i class="fa-solid fa-floppy-disk text-amber-300"></i>
+                    <span>儲存進度</span>
+                </button>
+                <button onclick="toggleSound()" id="sound-btn" class="bg-indigo-700 hover:bg-indigo-800 text-white p-2 rounded-xl text-xs touch-btn" title="切換音效">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Student Profile & Submission Info Bar -->
+    <div class="bg-white border-b border-slate-200 shadow-sm no-print">
+        <div class="max-w-5xl mx-auto px-4 py-3">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-500 mb-0.5">學生姓名：</label>
+                    <input type="text" id="student-name" placeholder="請輸入姓名" oninput="autoSaveProgress()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-800">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-0.5">班別：</label>
+                    <input type="text" id="student-class" placeholder="例：4A" oninput="autoSaveProgress()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-800">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-0.5">學號：</label>
+                    <input type="number" id="student-no" placeholder="例：12" oninput="autoSaveProgress()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-800">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-0.5">完成度：</label>
+                    <div class="flex items-center gap-2 pt-1">
+                        <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                            <div id="completion-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                        <span id="completion-text" class="font-bold text-emerald-700 text-xs">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs for iPad Touch Navigation -->
+    <nav class="bg-indigo-50 border-b border-indigo-100 shadow-inner no-print">
+        <div class="max-w-5xl mx-auto px-4 flex overflow-x-auto py-2 space-x-2 no-scrollbar">
+            <button onclick="switchTab('step1')" id="btn-step1" class="tab-btn active px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 whitespace-nowrap bg-indigo-600 text-white shadow">
+                <span class="w-5 h-5 rounded-full bg-white/20 text-white text-xs flex items-center justify-center">1</span> 構思篇
+            </button>
+            <button onclick="switchTab('step2')" id="btn-step2" class="tab-btn px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 whitespace-nowrap text-slate-600 hover:bg-white/60">
+                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-xs flex items-center justify-center">2</span> 詞語寶庫
+            </button>
+            <button onclick="switchTab('step3')" id="btn-step3" class="tab-btn px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 whitespace-nowrap text-slate-600 hover:bg-white/60">
+                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-xs flex items-center justify-center">3</span> 句子魔法
+            </button>
+            <button onclick="switchTab('step4')" id="btn-step4" class="tab-btn px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 whitespace-nowrap text-slate-600 hover:bg-white/60">
+                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-xs flex items-center justify-center">4</span> 段落重組
+            </button>
+            <button onclick="switchTab('step5')" id="btn-step5" class="tab-btn px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 whitespace-nowrap text-slate-600 hover:bg-white/60">
+                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-xs flex items-center justify-center">5</span> 初稿寫作
+            </button>
+            <button onclick="switchTab('step6')" id="btn-step6" class="tab-btn px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 whitespace-nowrap text-emerald-800 bg-emerald-100 border border-emerald-300">
+                <i class="fa-solid fa-circle-check"></i> 完成與總覽
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Worksheet Container -->
+    <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- STEP 1: Brainstorming & Mind Map -->
+        <section id="step1" class="tab-content space-y-6">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-5">
+                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">第一部分</span>
+                    <h2 class="text-xl font-black text-slate-900 mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i> 1. 寫作構思與思維梳理
+                    </h2>
+                    <p class="text-slate-500 text-xs mt-1">請選擇你想描寫的動物，並完成基本資料梳理：</p>
+                </div>
+
+                <!-- Animal Choice Grid -->
+                <div class="mb-6">
+                    <label class="block font-bold text-sm text-slate-700 mb-3">（一）請選擇你最喜愛的一種動物：</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button onclick="selectTargetAnimal('狗')" id="animal-opt-狗" class="animal-opt-btn p-4 bg-slate-50 hover:bg-indigo-50 border-2 border-slate-200 rounded-2xl flex flex-col items-center gap-2 touch-btn">
+                            <span class="text-3xl">🐶</span>
+                            <span class="font-bold text-sm text-slate-800">小狗</span>
+                        </button>
+                        <button onclick="selectTargetAnimal('貓')" id="animal-opt-貓" class="animal-opt-btn p-4 bg-slate-50 hover:bg-indigo-50 border-2 border-slate-200 rounded-2xl flex flex-col items-center gap-2 touch-btn">
+                            <span class="text-3xl">🐱</span>
+                            <span class="font-bold text-sm text-slate-800">小貓</span>
+                        </button>
+                        <button onclick="selectTargetAnimal('兔子')" id="animal-opt-兔子" class="animal-opt-btn p-4 bg-slate-50 hover:bg-indigo-50 border-2 border-slate-200 rounded-2xl flex flex-col items-center gap-2 touch-btn">
+                            <span class="text-3xl">🐰</span>
+                            <span class="font-bold text-sm text-slate-800">兔子</span>
+                        </button>
+                        <button onclick="selectTargetAnimal('倉鼠/其他')" id="animal-opt-倉鼠/其他" class="animal-opt-btn p-4 bg-slate-50 hover:bg-indigo-50 border-2 border-slate-200 rounded-2xl flex flex-col items-center gap-2 touch-btn">
+                            <span class="text-3xl">🐹</span>
+                            <span class="font-bold text-sm text-slate-800">倉鼠/其他</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mind Map Guided Form -->
+                <div class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 space-y-4">
+                    <h3 class="font-bold text-sm text-indigo-900 border-b border-indigo-200 pb-2">（二）填寫動物檔案卡（為文章累積素材）：</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">1. 動物的名字/品種：</label>
+                            <input type="text" id="input-pet-name" placeholder="例：雪球（白色貴婦狗）" oninput="autoSaveProgress()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">2. 外貌特徵（毛色、眼睛、體型等）：</label>
+                            <input type="text" id="input-pet-looks" placeholder="例：毛髮雪白像棉花糖，眼睛圓滾滾" oninput="autoSaveProgress()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">3. 生活習性/喜愛的食物：</label>
+                            <input type="text" id="input-pet-habits" placeholder="例：喜歡吃肉乾，高興時會一直搖尾巴" oninput="autoSaveProgress()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">4. 一件難忘的趣事或互動：</label>
+                            <input type="text" id="input-pet-event" placeholder="例：每天放學它都在門口熱情迎接我回家" oninput="autoSaveProgress()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button onclick="switchTab('step2')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow touch-btn flex items-center gap-1.5">
+                        下階段：挑選好詞寶庫 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: Vocabulary Bank & Interactive Picker -->
+        <section id="step2" class="tab-content space-y-6 hidden">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-5 flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">第二部分</span>
+                        <h2 class="text-xl font-black text-slate-900 mt-1 flex items-center gap-2">
+                            <i class="fa-solid fa-book-bookmark text-indigo-600"></i> 2. 好詞佳句積累寶庫
+                        </h2>
+                        <p class="text-slate-500 text-xs mt-1">點擊詞語聆聽發音，並點選你打算運用在文章中的詞語：</p>
+                    </div>
+                </div>
+
+                <!-- Vocabulary Cards Grid -->
+                <div id="vocab-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Selected Vocabulary Checklist for Student -->
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl">
+                    <h3 class="font-bold text-xs text-amber-900 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-star text-amber-500"></i> 我已挑選的寫作詞語（最少選 3 個）：
+                    </h3>
+                    <div id="selected-vocab-tags" class="flex flex-wrap gap-2 min-h-[36px]">
+                        <span class="text-xs text-slate-400 italic">尚未點選詞語，請在上方點擊詞語卡片...</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-between items-center">
+                    <button onclick="switchTab('step1')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-200 touch-btn">
+                        <i class="fa-solid fa-arrow-left"></i> 上一步
+                    </button>
+                    <button onclick="switchTab('step3')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow touch-btn flex items-center gap-1.5">
+                        下階段：句子魔法練習 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: Sentence Magic Upgrade -->
+        <section id="step3" class="tab-content space-y-6 hidden">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-5">
+                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">第三部分</span>
+                    <h2 class="text-xl font-black text-slate-900 mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-600"></i> 3. 句子魔法大升級
+                    </h2>
+                    <p class="text-slate-500 text-xs mt-1">練習運用「比喻修辭」與「細緻動態描寫」，挑選最生動的句子：</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Quiz Item 1 -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
+                            <span class="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">題目一</span>
+                            要描寫小貓「碧綠色明亮的眼睛」，哪一句最吸引人？
+                        </h3>
+                        <div class="space-y-2 text-xs">
+                            <label class="flex items-center p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-indigo-50/50">
+                                <input type="radio" name="quiz1" value="A" onchange="checkQuizAnswer(1, 'A', false)" class="mr-2 text-indigo-600">
+                                <span>A. 小貓眼睛很大很綠，看起來很漂亮。</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-indigo-50/50">
+                                <input type="radio" name="quiz1" value="B" onchange="checkQuizAnswer(1, 'B', true)" class="mr-2 text-indigo-600">
+                                <span>B. 小貓嵌著一雙像晶瑩綠寶石般的眼睛，閃爍著好奇的光芒。 （✨ 運用比喻修辭）</span>
+                            </label>
+                        </div>
+                        <div id="quiz1-feedback" class="mt-3 p-2.5 rounded-xl text-xs font-bold hidden"></div>
+                    </div>
+
+                    <!-- Quiz Item 2 -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
+                            <span class="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">題目二</span>
+                            要描寫小狗「看見主人回家時興奮的樣子」，哪一句最動人？
+                        </h3>
+                        <div class="space-y-2 text-xs">
+                            <label class="flex items-center p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-indigo-50/50">
+                                <input type="radio" name="quiz2" value="A" onchange="checkQuizAnswer(2, 'A', true)" class="mr-2 text-indigo-600">
+                                <span>A. 每當我推開家門，小狗便會興高采烈地撲上前，尾巴搖得像一把歡快的小扇子。（✨ 動態與比喻）</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-indigo-50/50">
+                                <input type="radio" name="quiz2" value="B" onchange="checkQuizAnswer(2, 'B', false)" class="mr-2 text-indigo-600">
+                                <span>B. 我放學回家時，小狗看到我很高興，一直在搖尾巴。</span>
+                            </label>
+                        </div>
+                        <div id="quiz2-feedback" class="mt-3 p-2.5 rounded-xl text-xs font-bold hidden"></div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-between items-center">
+                    <button onclick="switchTab('step2')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-200 touch-btn">
+                        <i class="fa-solid fa-arrow-left"></i> 上一步
+                    </button>
+                    <button onclick="switchTab('step4')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow touch-btn flex items-center gap-1.5">
+                        下階段：段落重組挑戰 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 4: Paragraph Sorting Challenge -->
+        <section id="step4" class="tab-content space-y-6 hidden">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-5 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">第四部分</span>
+                        <h2 class="text-xl font-black text-slate-900 mt-1 flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-emerald-600"></i> 4. 段落組裝與邏輯歸類挑戰
+                        </h2>
+                        <p class="text-slate-500 text-xs mt-1">點擊下方卡片，將句子歸類到正確的文章段落：</p>
+                    </div>
+                    <button onclick="resetSortingGame()" class="px-3 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-200 touch-btn">
+                        <i class="fa-solid fa-rotate"></i> 重置
+                    </button>
+                </div>
+
+                <!-- Unsorted Sentence Stock -->
+                <div class="bg-slate-100 p-4 rounded-2xl mb-6">
+                    <h3 class="text-xs font-bold text-slate-600 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-box-open"></i> 待歸類句子（請點擊卡片，再點擊下方目標段落）：
+                    </h3>
+                    <div id="sorting-pool" class="flex flex-wrap gap-2 min-h-[70px]">
+                <!-- 5 Target Zones for Paragraph Sorting -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div onclick="placeCardInZone('p1')" class="target-zone border-2 border-dashed border-blue-300 bg-blue-50/40 hover:bg-blue-50 p-4 rounded-2xl transition cursor-pointer min-h-[120px]">
+                        <div class="font-bold text-blue-900 text-xs mb-2">第一段：引言與總述（品種與名字）</div>
+                        <div id="zone-p1" class="space-y-2"></div>
+                    </div>
+                    <div onclick="placeCardInZone('p2')" class="target-zone border-2 border-dashed border-amber-300 bg-amber-50/40 hover:bg-amber-50 p-4 rounded-2xl transition cursor-pointer min-h-[120px]">
+                        <div class="font-bold text-amber-900 text-xs mb-2">第二段：外貌特徵（毛色、眼睛等）</div>
+                        <div id="zone-p2" class="space-y-2"></div>
+                    </div>
+                    <div onclick="placeCardInZone('p3')" class="target-zone border-2 border-dashed border-purple-300 bg-purple-50/40 hover:bg-purple-50 p-4 rounded-2xl transition cursor-pointer min-h-[120px]">
+                        <div class="font-bold text-purple-900 text-xs mb-2">第三段：生活習性（食物、睡眠）</div>
+                        <div id="zone-p3" class="space-y-2"></div>
+                    </div>
+                    <div onclick="placeCardInZone('p4')" class="target-zone border-2 border-dashed border-emerald-300 bg-emerald-50/40 hover:bg-emerald-50 p-4 rounded-2xl transition cursor-pointer min-h-[120px]">
+                        <div class="font-bold text-emerald-900 text-xs mb-2">第四段：互動趣事與難忘經歷</div>
+                        <div id="zone-p4" class="space-y-2"></div>
+                    </div>
+                    <div onclick="placeCardInZone('p5')" class="target-zone border-2 border-dashed border-rose-300 bg-rose-50/40 hover:bg-rose-50 p-4 rounded-2xl transition cursor-pointer min-h-[120px] sm:col-span-2 lg:col-span-1">
+                        <div class="font-bold text-rose-900 text-xs mb-2">第五段：總結與感情抒發</div>
+                        <div id="zone-p5" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <div id="sorting-feedback" class="mt-4 p-3 rounded-xl text-xs font-bold hidden"></div>
+
+                <div class="mt-6 flex justify-between items-center">
+                    <button onclick="checkSortingResult()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow touch-btn">
+                        <i class="fa-solid fa-check"></i> 檢查結果
+                    </button>
+                    <button onclick="switchTab('step5')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow touch-btn flex items-center gap-1.5">
+                        下階段：開始撰寫初稿 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 5: Drafting the Essay (5 Paragraphs) -->
+        <section id="step5" class="tab-content space-y-6 hidden">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-5 flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">第五部分</span>
+                        <h2 class="text-xl font-black text-slate-900 mt-1 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-indigo-600"></i> 5. 五段式作文初稿撰寫
+                        </h2>
+                        <p class="text-slate-500 text-xs mt-1">根據前面整理的思維與詞語，完成五段作文（寫作時可點擊「AI 語句修飾助手」獲取提示）：</p>
+                    </div>
+                    <div class="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200">
+                        總字數：<span id="essay-total-words">0</span> 字
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <!-- Paragraph 1 -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-xs text-blue-900 flex items-center gap-1.5">
+                                <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
+                                第一段：開頭（點明最喜愛的動物、品種與名字）
+                            </label>
+                            <span class="text-[11px] text-slate-400">建議 40-50 字</span>
+                        </div>
+                        <textarea id="essay-p1" rows="3" oninput="updateEssayStats()" placeholder="我家養了一隻活潑可愛的小狗，它的名字叫「雪球」..." class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed"></textarea>
+                    </div>
+
+                    <!-- Paragraph 2 -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-xs text-amber-900 flex items-center gap-1.5">
+                                <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs">2</span>
+                                第二段：外貌特徵（毛色、眼睛、耳朵、體型與動態美）
+                            </label>
+                            <span class="text-[11px] text-slate-400">建議 60-80 字</span>
+                        </div>
+                        <textarea id="essay-p2" rows="3" oninput="updateEssayStats()" placeholder="雪球全身覆蓋著雪白無瑕的毛髮，摸起來非常柔軟。它那一雙水汪汪的眼睛像兩顆黑寶石..." class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed"></textarea>
+                    </div>
+
+                    <!-- Paragraph 3 -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-xs text-purple-900 flex items-center gap-1.5">
+                                <span class="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs">3</span>
+                                第三段：生活習性（飲食偏好、平日小習慣或作息）
+                            </label>
+                            <span class="text-[11px] text-slate-400">建議 60-80 字</span>
+                        </div>
+                        <textarea id="essay-p3" rows="3" oninput="updateEssayStats()" placeholder="雪球最喜愛的食物是牛肉乾，每次看到肉乾便狼吞虎嚥地吃起來。吃飽後，它喜歡蜷縮在客anny陽光下睡懶覺..." class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed"></textarea>
+                    </div>
+
+                    <!-- Paragraph 4 -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-xs text-emerald-900 flex items-center gap-1.5">
+                                <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">4</span>
+                                第四段：互動趣事（一項難忘的經歷或溫馨日常互動）
+                            </label>
+                            <span class="text-[11px] text-slate-400">建議 70-90 字</span>
+                        </div>
+                        <textarea id="essay-p4" rows="4" oninput="updateEssayStats()" placeholder="每當我放學推開家門，雪球總會興高采烈地搖著尾巴迎上前。記得有一次我心情不好，它安靜地靠在我腳邊，用溫柔的眼神陪伴我..." class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed"></textarea>
+                    </div>
+
+                    <!-- Paragraph 5 -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-xs text-rose-900 flex items-center gap-1.5">
+                                <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs">5</span>
+                                第五段：結尾抒情（表達喜愛之情、陪伴感受與承諾）
+                            </label>
+                            <span class="text-[11px] text-slate-400">建議 40-50 字</span>
+                        </div>
+                        <textarea id="essay-p5" rows="3" oninput="updateEssayStats()" placeholder="雪球不僅是我的寵物，更是我生活中不可或缺的好夥伴。我會用心愛護它一生，陪伴它快樂成長..." class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed"></textarea>
+                    </div>
+                </div>
+
+                <!-- AI Polish Drawer / Modal Trigger -->
+                <div class="mt-5 p-4 bg-purple-50 rounded-2xl border border-purple-200">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-sparkles text-purple-600 text-lg"></i>
+                            <div>
+                                <h4 class="font-bold text-xs text-purple-950">AI 語句寫作提示助手</h4>
+                                <p class="text-[11px] text-purple-700">卡住了嗎？點擊右側按鈕，請 AI 老師提供佳句靈感或幫忙檢查語句！</p>
+                            </div>
+                        </div>
+                        <button onclick="askAIPromptHint()" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow touch-btn flex items-center gap-1">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> 獲得 AI 靈感提示
+                        </button>
+                    </div>
+                    <div id="ai-hint-box" class="mt-3 p-3 bg-white rounded-xl border border-purple-200 text-xs hidden leading-relaxed text-slate-800"></div>
+                </div>
+
+                <div class="mt-6 flex justify-between items-center">
+                    <button onclick="switchTab('step4')" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-200 touch-btn">
+                        <i class="fa-solid fa-arrow-left"></i> 上一步
+                    </button>
+                    <button onclick="switchTab('step6')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow touch-btn flex items-center gap-1.5">
+                        完成！前往學習總覽 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 6: Summary & Review (No Submission Required) -->
+        <section id="step6" class="tab-content space-y-6 hidden">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-5">
+                    <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">第六部分</span>
+                    <h2 class="text-xl font-black text-slate-900 mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i> 6. 工作紙完成總結與文章預覽
+                    </h2>
+                    <p class="text-slate-500 text-xs mt-1">恭喜你完成工作紙！請仔細閱讀五段文章，進行自我檢查或存檔：</p>
+                </div>
+
+                <!-- Live Preview of Final Essay (5 Paragraphs) -->
+                <div class="bg-amber-50/60 p-6 rounded-2xl border border-amber-200 space-y-4">
+                    <div class="flex justify-between items-center border-b border-amber-200/80 pb-3">
+                        <div class="text-xs font-bold text-amber-900">
+                            《我最喜愛的動物》五段全文總覽
+                        </div>
+                        <div class="text-xs text-slate-500" id="final-summary-student-info">
+                            <!-- Student Info -->
+                        </div>
+                    </div>
+
+                    <div id="final-essay-preview" class="text-sm leading-relaxed text-slate-800 space-y-3 font-medium bg-white p-4 rounded-xl border border-amber-100">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-6 flex flex-wrap gap-3 justify-center">
+                    <button onclick="copyFullEssayText()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs rounded-xl shadow-lg touch-btn flex items-center gap-2">
+                        <i class="fa-regular fa-copy"></i> 複製全文內容
+                    </button>
+                    <button onclick="window.print()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-lg touch-btn flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> 列印/儲存為 PDF 完成報告
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 no-print">
+        小學四年級中文寫作 iPad 互動工作紙 • 支援五段結構與自動進度儲存
+    </footer>
+
+    <script>
+        // Sound and State Variables
+        let soundEnabled = true;
+        let selectedAnimal = '';
+        let selectedVocabs = [];
+        let sortingSelectedCard = null;
+
+        const vocabBank = [
+            { word: "毛茸茸", tag: "外貌", sentence: "小狗全身毛茸茸的，抱起來十分舒服。" },
+            { word: "水汪汪", tag: "外貌", sentence: "小貓用一雙水汪汪的眼睛注視著我。" },
+            { word: "笨拙", tag: "外貌", sentence: "小烏龜走起路來模樣有點笨拙。" },
+            { word: "溫順", tag: "性格", sentence: "這隻兔子的性格非常溫順，從不咬人。" },
+            { word: "活潑好動", tag: "性格", sentence: "小柴犬活潑好動，總是在花園裡奔跑。" },
+            { word: "興高采烈", tag: "動態", sentence: "得知要出門散步，小狗興高采烈地甩著尾巴。" },
+            { word: "狼吞虎嚥", tag: "動態", sentence: "小狗一看到肉乾便狼吞虎嚥地吃起來。" },
+            { word: "形影不離", tag: "感受", sentence: "我和小狗形影不離，是最好的夥伴。" },
+            { word: "愛不釋手", tag: "感受", sentence: "這隻毛茸茸的小貓真讓我愛不釋手。" },
+            { word: "不可或缺", tag: "感受", sentence: "雪球已經成為我們家不可或缺的成員。" }
+        ];
+
+        const sortingData = [
+            { id: 1, text: "我家養了一隻活潑可愛的小狗，名字叫「雪球」。", target: "p1" },
+            { id: 2, text: "雪球全身覆蓋著雪白的毛髮，摸起來非常柔軟。", target: "p2" },
+            { id: 3, text: "它那一雙水汪汪的眼睛像兩顆黑寶石。", target: "p2" },
+            { id: 4, text: "雪球最喜愛的食物是牛肉乾，吃得津津有味。", target: "p3" },
+            { id: 5, text: "每當我放學回家，雪球總會興高采烈地搖著尾巴迎上前。", target: "p4" },
+            { id: 6, text: "雪球不僅是我的寵物，更是我生活中不可或缺的好夥伴。", target: "p5" }
+        ];
+
+        function playTone(freq, duration = "8n") {
+            if (!soundEnabled) return;
+            try {
+                const synth = new Tone.Synth().toDestination();
+                synth.triggerAttackRelease(freq, duration);
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-btn');
+            btn.innerHTML = soundEnabled ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
+        }
+
+        function switchTab(tabId) {
+            playTone(523.25, "16n");
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-600', 'text-white', 'shadow');
+                btn.classList.add('text-slate-600');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('active', 'bg-indigo-600', 'text-white', 'shadow');
+            activeBtn.classList.remove('text-slate-600');
+
+            if (tabId === 'step6') {
+                updateFinalSummary();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectTargetAnimal(animal) {
+            selectedAnimal = animal;
+            playTone(659.25, "8n");
+            document.querySelectorAll('.animal-opt-btn').forEach(b => {
+                b.classList.remove('border-indigo-600', 'bg-indigo-50', 'ring-2', 'ring-indigo-400');
+            });
+            const btn = document.getElementById('animal-opt-' + animal);
+            if (btn) btn.classList.add('border-indigo-600', 'bg-indigo-50', 'ring-2', 'ring-indigo-400');
+            autoSaveProgress();
+        }
+
+        function renderVocabCards() {
+            const grid = document.getElementById('vocab-cards-grid');
+            grid.innerHTML = '';
+            vocabBank.forEach((item, index) => {
+                const card = document.createElement('div');
+                const isSelected = selectedVocabs.includes(item.word);
+                card.className = `p-3 rounded-2xl border cursor-pointer transition flex flex-col justify-between touch-btn ${isSelected ? 'bg-amber-100 border-amber-400 ring-2 ring-amber-400' : 'bg-slate-50 border-slate-200 hover:border-indigo-300'}`;
+                card.onclick = () => toggleSelectVocab(item.word);
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/80 text-slate-700">${item.tag}</span>
+                        <button onclick="speakWord(event, '${item.word}')" class="text-slate-400 hover:text-indigo-600 p-1" title="發音">
+                            <i class="fa-solid fa-volume-high text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="font-black text-sm text-slate-800 text-center py-1">${item.word}</div>
+                `;
+                grid.appendChild(card);
+            });
+            renderSelectedVocabTags();
+        }
+
+        function speakWord(e, word) {
+            e.stopPropagation();
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance(word);
+                msg.lang = 'zh-HK';
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function toggleSelectVocab(word) {
+            playTone(783.99, "16n");
+            if (selectedVocabs.includes(word)) {
+                selectedVocabs = selectedVocabs.filter(w => w !== word);
+            } else {
+                selectedVocabs.push(word);
+            }
+            renderVocabCards();
+            autoSaveProgress();
+        }
+
+        function renderSelectedVocabTags() {
+            const container = document.getElementById('selected-vocab-tags');
+            if (selectedVocabs.length === 0) {
+                container.innerHTML = `<span class="text-xs text-slate-400 italic">尚未點選詞語，請在上方點擊詞語卡片...</span>`;
+                return;
+            }
+            container.innerHTML = '';
+            selectedVocabs.forEach(w => {
+                const tag = document.createElement('span');
+                tag.className = "bg-amber-500 text-slate-950 font-bold text-xs px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-sm";
+                tag.innerHTML = `${w} <i onclick="toggleSelectVocab('${w}')" class="fa-solid fa-xmark cursor-pointer ml-1 text-slate-800"></i>`;
+                container.appendChild(tag);
+            });
+        }
+
+        function checkQuizAnswer(qNum, choice, isCorrect) {
+            const feedback = document.getElementById(`quiz${qNum}-feedback`);
+            feedback.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
+            if (isCorrect) {
+                playTone(880, "8n");
+                feedback.classList.add('bg-emerald-100', 'text-emerald-800');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> 答對了！這句運用了豐富的修辭與視覺描寫，讓句子更生動！`;
+            } else {
+                playTone(220, "8n");
+                feedback.classList.add('bg-rose-100', 'text-rose-800');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> 再想想看～ 這句寫得稍微平淡了些，試試另一個選項吧！`;
+            }
+            autoSaveProgress();
+        }
+
+        function initSortingGame() {
+            const pool = document.getElementById('sorting-pool');
+            pool.innerHTML = '';
+            const shuffled = [...sortingData].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const card = document.createElement('div');
+                card.id = 'sort-item-' + item.id;
+                card.className = "bg-white p-2.5 rounded-xl border border-slate-300 shadow-sm text-xs font-bold text-slate-800 cursor-pointer hover:border-indigo-400 transition touch-btn";
+                card.innerText = item.text;
+                card.onclick = (e) => {
+                    e.stopPropagation();
+                    selectSortingItem(item, card);
+                };
+                pool.appendChild(card);
+            });
+
+            ['p1','p2','p3','p4','p5'].forEach(z => {
+                const zoneEl = document.getElementById('zone-' + z);
+                if (zoneEl) zoneEl.innerHTML = '';
+            });
+        }
+
+        function selectSortingItem(item, el) {
+            playTone(600, "16n");
+            document.querySelectorAll('#sorting-pool > div, .target-zone div').forEach(c => c.classList.remove('ring-4', 'ring-amber-400'));
+            sortingSelectedCard = item;
+            el.classList.add('ring-4', 'ring-amber-400');
+        }
+
+        function placeCardInZone(zoneId) {
+            if (!sortingSelectedCard) return;
+            playTone(700, "16n");
+            const cardEl = document.getElementById('sort-item-' + sortingSelectedCard.id);
+            if (cardEl) {
+                cardEl.classList.remove('ring-4', 'ring-amber-400');
+                document.getElementById('zone-' + zoneId).appendChild(cardEl);
+            }
+            sortingSelectedCard = null;
+        }
+
+        function checkSortingResult() {
+            let correct = 0;
+            sortingData.forEach(item => {
+                const el = document.getElementById('sort-item-' + item.id);
+                if (el && el.parentElement.id === 'zone-' + item.target) {
+                    correct++;
+                    el.classList.add('bg-emerald-50', 'border-emerald-400');
+                } else if (el) {
+                    el.classList.add('bg-rose-50', 'border-rose-400');
+                }
+            });
+
+            const fb = document.getElementById('sorting-feedback');
+            fb.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-amber-100', 'text-amber-800');
+            if (correct === sortingData.length) {
+                playTone(880, "4n");
+                fb.classList.add('bg-emerald-100', 'text-emerald-800');
+                fb.innerHTML = `🎉 太棒了！你成功將全部 ${correct} 個句子分類到正確段落！`;
+            } else {
+                playTone(300, "4n");
+                fb.classList.add('bg-amber-100', 'text-amber-800');
+                fb.innerHTML = `答對了 ${correct} / ${sortingData.length} 句。紅框為放錯位置的句子，請調整後再試一次！`;
+            }
+        }
+
+        function resetSortingGame() {
+            initSortingGame();
+            document.getElementById('sorting-feedback').classList.add('hidden');
+        }
+
+        function updateEssayStats() {
+            const p1 = document.getElementById('essay-p1').value;
+            const p2 = document.getElementById('essay-p2').value;
+            const p3 = document.getElementById('essay-p3').value;
+            const p4 = document.getElementById('essay-p4').value;
+            const p5 = document.getElementById('essay-p5').value;
+
+            const total = (p1 + p2 + p3 + p4 + p5).replace(/\s/g, '').length;
+            document.getElementById('essay-total-words').innerText = total;
+            autoSaveProgress();
+        }
+
+        async function askAIPromptHint() {
+            const animal = selectedAnimal || '小狗';
+            const hintBox = document.getElementById('ai-hint-box');
+            hintBox.classList.remove('hidden');
+            hintBox.innerHTML = `<span class="animate-pulse text-purple-600 font-bold">✨ Gemini AI 正在為你的《${animal}》作文思考小靈感...</span>`;
+
+            const prompt = `你是一位親切的小學中文老師。學生正準備寫一篇小四作文《我最喜愛的動物》，寫作目標動物是：${animal}。
+請提供 3 個適合小四學生的寫作靈感小貼士（例如比喻句示範、描寫動作的動詞組合）。簡短精煉，不超過 150 字。`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "暫時無法取得提示，請參考詞語寶庫喔！";
+                hintBox.innerHTML = `<strong>💡 AI 老師的寫作小建議：</strong><br>${text.replace(/\n/g, '<br>')}`;
+            } catch (err) {
+                hintBox.innerHTML = `<span class="text-rose-500">提示連線失敗，請繼續加油寫作！</span>`;
+            }
+        }
+
+        function updateFinalSummary() {
+            const name = document.getElementById('student-name').value || '未填寫';
+            const className = document.getElementById('student-class').value || '--';
+            const classNo = document.getElementById('student-no').value || '--';
+
+            document.getElementById('final-summary-student-info').innerText = `學生：${name} (${className} 班 ${classNo} 號)`;
+
+            const p1 = document.getElementById('essay-p1').value || '（未填寫第一段：開頭總述）';
+            const p2 = document.getElementById('essay-p2').value || '（未填寫第二段：外貌特徵）';
+            const p3 = document.getElementById('essay-p3').value || '（未填寫第三段：生活習性）';
+            const p4 = document.getElementById('essay-p4').value || '（未填寫第四段：互動趣事）';
+            const p5 = document.getElementById('essay-p5').value || '（未填寫第五段：結尾抒情）';
+
+            document.getElementById('final-essay-preview').innerHTML = `
+                <p><strong>第一段（開頭總述）：</strong> ${p1}</p>
+                <p><strong>第二段（外貌特徵）：</strong> ${p2}</p>
+                <p><strong>第三段（生活習性）：</strong> ${p3}</p>
+                <p><strong>第四段（互動趣事）：</strong> ${p4}</p>
+                <p><strong>第五段（結尾抒情）：</strong> ${p5}</p>
+            `;
+        }
+
+        function copyFullEssayText() {
+            const p1 = document.getElementById('essay-p1').value;
+            const p2 = document.getElementById('essay-p2').value;
+            const p3 = document.getElementById('essay-p3').value;
+            const p4 = document.getElementById('essay-p4').value;
+            const p5 = document.getElementById('essay-p5').value;
+
+            const fullText = `《我最喜愛的動物》\n\n${p1}\n\n${p2}\n\n${p3}\n\n${p4}\n\n${p5}`;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = fullText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            alert("✅ 已成功複製五段文章全文！");
+        }
+
+        function autoSaveProgress() {
+            const data = {
+                name: document.getElementById('student-name').value,
+                class: document.getElementById('student-class').value,
+                no: document.getElementById('student-no').value,
+                animal: selectedAnimal,
+                petName: document.getElementById('input-pet-name').value,
+                petLooks: document.getElementById('input-pet-looks').value,
+                petHabits: document.getElementById('input-pet-habits').value,
+                petEvent: document.getElementById('input-pet-event').value,
+                selectedVocabs: selectedVocabs,
+                p1: document.getElementById('essay-p1').value,
+                p2: document.getElementById('essay-p2').value,
+                p3: document.getElementById('essay-p3').value,
+                p4: document.getElementById('essay-p4').value,
+                p5: document.getElementById('essay-p5').value
+            };
+            localStorage.setItem('p4_animal_worksheet', JSON.stringify(data));
+            calculateCompletion();
+        }
+
+        function saveStudentWork(showAlert = true) {
+            autoSaveProgress();
+            if (showAlert) alert("💾 你的寫作進度已成功儲存在 iPad 上！");
+        }
+
+        function loadSavedProgress() {
+            const raw = localStorage.getItem('p4_animal_worksheet');
+            if (!raw) return;
+            try {
+                const data = JSON.parse(raw);
+                if (data.name) document.getElementById('student-name').value = data.name;
+                if (data.class) document.getElementById('student-class').value = data.class;
+                if (data.no) document.getElementById('student-no').value = data.no;
+                if (data.animal) selectTargetAnimal(data.animal);
+                if (data.petName) document.getElementById('input-pet-name').value = data.petName;
+                if (data.petLooks) document.getElementById('input-pet-looks').value = data.petLooks;
+                if (data.petHabits) document.getElementById('input-pet-habits').value = data.petHabits;
+                if (data.petEvent) document.getElementById('input-pet-event').value = data.petEvent;
+                if (data.selectedVocabs) selectedVocabs = data.selectedVocabs;
+                if (data.p1) document.getElementById('essay-p1').value = data.p1;
+                if (data.p2) document.getElementById('essay-p2').value = data.p2;
+                if (data.p3) document.getElementById('essay-p3').value = data.p3;
+                if (data.p4) document.getElementById('essay-p4').value = data.p4;
+                if (data.p5) document.getElementById('essay-p5').value = data.p5;
+
+                renderVocabCards();
+                updateEssayStats();
+                calculateCompletion();
+            } catch (e) {}
+        }
+
+        function calculateCompletion() {
+            let score = 0;
+            if (document.getElementById('student-name').value) score += 10;
+            if (selectedAnimal) score += 10;
+            if (document.getElementById('input-pet-name').value) score += 10;
+            if (selectedVocabs.length >= 3) score += 20;
+            if (document.getElementById('essay-p1').value) score += 10;
+            if (document.getElementById('essay-p2').value) score += 10;
+            if (document.getElementById('essay-p3').value) score += 10;
+            if (document.getElementById('essay-p4').value) score += 10;
+            if (document.getElementById('essay-p5').value) score += 10;
+
+            const finalPercent = Math.min(100, score);
+            document.getElementById('completion-bar').style.width = finalPercent + '%';
+            document.getElementById('completion-text').innerText = finalPercent + '%';
+        }
+
+        window.onload = function() {
+            renderVocabCards();
+            initSortingGame();
+            loadSavedProgress();
+        };
+    </script>
+</body>
+</html>
